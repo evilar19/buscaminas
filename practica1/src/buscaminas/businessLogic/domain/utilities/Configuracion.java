@@ -35,18 +35,22 @@ public void setNumF(int numF){
 	this.numF=numF;
 }
 public int getNumF(){
-	return this.numF;
+	//System.out.println("devolviendo " + numF);
+	return numF;
 }
 public void setNumC(int numC){
 	this.numC=numC;
 }
 public int getNumC(){
-	return this.numC;
-}public void setNumM(int numM){
+	//System.out.println("devolviendo " + numC);
+	return numC;
+}
+public void setNumM(int numM){
 	this.numM=numM;
 }
 public int getNumM(){
-	return this.numM;
+	//System.out.println("devolviendo " + numC);
+	return numM;
 }
 
 public static void main(String args[]){

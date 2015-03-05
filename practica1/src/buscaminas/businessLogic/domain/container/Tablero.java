@@ -1,6 +1,8 @@
 package buscaminas.businessLogic.domain.container;
 
 import java.util.Random;
+
+import buscaminas.businessLogic.domain.objects.Casilla;
 import buscaminas.businessLogic.domain.objects.Contador;
 import buscaminas.businessLogic.domain.objects.Mina;
 import buscaminas.businessLogic.domain.objects.Vacio;
@@ -9,22 +11,31 @@ import buscaminas.businessLogic.domain.utilities.Configuracion;
 
 public class Tablero {
 
-	private Object[][] tablero;
+	private Casilla[][] tablero;
+	private Configuracion configuracion;
 
-	public Tablero() {
+	public Tablero(){
 	}
 
 	public Tablero(Configuracion conf) {
-
-		tablero = new Object[conf.getNumF()][conf.getNumC()];
-
-		crearTablero(conf);
-
+		System.out.println("creando tablero");
+		tablero = new Casilla[conf.getNumF()][conf.getNumC()];
+		
+		this.configuracion = conf;
+		
+		// llenamos el tablero
+		crearTablero();
+		
+		// localizamos unas casillas con otras
+		organizarTablero();
+		
 		introducirContadoresYBlancos(conf);
+		System.out.println("tablero pintado");
 	}
 
 	private void introducirContadoresYBlancos(Configuracion conf) {
-
+		
+/*
 		for (int i = 0; i < conf.getNumF(); i++) {
 			for (int j = 0; j < conf.getNumC(); i++) {
 				if (!(tablero[i][j] instanceof Mina)) {
@@ -53,35 +64,111 @@ public class Tablero {
 				}
 			}
 		}
+		*/
 	}
 
-	private void crearTablero(Configuracion conf) {
-		int contador = 0;
-		Random numAl = new Random();
-
-		do {
-			if (tablero[numAl.nextInt(conf.getNumF())][numAl.nextInt(conf
-					.getNumC())] == null) {
-				tablero[numAl.nextInt(conf.getNumF())][numAl.nextInt(conf
-						.getNumC())] = new Mina();
-				contador++;
-			} else
-				tablero[numAl.nextInt(conf.getNumF())][numAl.nextInt(conf
-						.getNumC())] = new Mina();
-			contador++;
-
-		} while (contador < conf.getNumM());
-
+	private void crearTablero() {
+		int fila = configuracion.getNumF();
+		int columna = configuracion.getNumC();
+		
+		// llenamos el array bidimensional de objetos casilla
+		for(int i = 0; i < fila; i++){
+			Casilla[] array = tablero[i];
+			for(int j = 0; j < columna; j++){
+				array[j] = new Casilla(i,j);
+			}
+		}
+		
+		// algunas de las casillas serán minas aleatoriamente
+		int minas = configuracion.getNumM();
+		while(true){
+			for(int i = 0; i < fila; i++){
+				Casilla[] array = tablero[i];
+				for(int j = 0; j < columna; j++){
+					Casilla casilla = array[j];
+					if(minas > 0){
+						if(hacerMina()){
+							casilla.setEsMina(true);
+							minas--;
+						}
+					}else break;
+				}
+				if(minas == 0){
+					break;
+				}
+			}
+			if(minas == 0){
+				break;
+			}
+		}
 	}
 	
-	public String pintarTablero(Configuracion conf){
-		String tab;
-		for(int i=0;i<conf.getNumF();i++){
+	public void organizarTablero(){
+		int fila = configuracion.getNumF();
+		int columna = configuracion.getNumC();
+		for(int i = 0; i < fila; i++){
+			Casilla[] array = tablero[i];
+			for(int j = 0; j < columna; j++){
+				Casilla casilla = array[j];
+				getColindantes(casilla);
+			}
+		}
+	}
+	
+	// método que captura las casillas colindantes
+	public void getColindantes(Casilla c){
+		Casilla casilla = (Casilla) c;
+		int x = casilla.getX();
+		int y = casilla.getY();
+		
+		
+		// comprobamos a la izquierda
+		if(x-1 >= 0) casilla.setIzCasilla(tablero[x-1][y]);
+		// comprobamos a la derecha
+		if(x+1 <= configuracion.getNumF()-1) casilla.setDeCasilla(tablero[x+1][y]);
+		// comprobamos arriba
+		if(y-1 >= 0) casilla.setArCasilla(tablero[x][y-1]);
+		// comprobamos abajo
+		if(y+1 <= configuracion.getNumC()-1) casilla.setAbCasilla(tablero[x][y+1]);
+	}
+	
+	// método ejecutado cuando seleccionas un cuadrante
+	public void setSeleccion(int x, int y){
+		Casilla casilla = (Casilla) tablero[x][y];
+		casilla.setDescubierta(true);
+		if(casilla.isEsMina()){
+			System.out.println("Has perdido");
+		}else{
 			
 		}
 	}
+	
+	// si obtenido aleatoriamente es par -> TRUE
+	public boolean hacerMina(){
+		Random random = new Random();
+		int  n = random.nextInt(100) + 1;
+		if(n % 2 == 0){
+			return true;
+		}else return false;
+	}
+	
+	public String pintarTablero(){
+		int fila = configuracion.getNumF();
+		int columna = configuracion.getNumC();
+		String table = "";
+		for(int i = 0; i < fila; i++){
+			table += " \t ";
+			for(int j = 0; j < columna; j++){
+				String casilla = tablero[i][j].toString();
+				table += casilla;
+			}
+			table += " \n ";
+		}
+		return table;
+	}
 
 	public boolean desvelarCasilla(int x, int y, boolean inicial) {
+		/*
 		boolean esMina = false;
 		if (tablero[x][y] instanceof Mina && inicial) {
 			esMina = true;
@@ -105,9 +192,13 @@ public class Tablero {
 				desvelarCasilla(x + 1, y, false);
 		}
 		return esMina;
+		*/
+		return false;
 	}
 
 	public boolean hasGanado() {
+		
+		/*
 		for (int i = 0; i < tablero.length; i++) {
 			for (int j = 0; j < tablero[i].length; j++) {
 				if (this.tablero[i][j] instanceof Vacio) {
@@ -123,6 +214,7 @@ public class Tablero {
 				}
 			}
 		}
+		*/
 		return true;
 
 	}

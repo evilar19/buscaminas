@@ -1,5 +1,7 @@
 package buscaminas.businessLogic;
 
+import java.util.Scanner;
+
 import buscaminas.businessLogic.domain.container.Tablero;
 import buscaminas.businessLogic.domain.utilities.Configuracion;
 import buscaminas.businessLogic.domain.utilities.ValoresDeJuego;
@@ -13,10 +15,11 @@ public class Buscaminas {
 	public Buscaminas() {
 	}
 
-	public Buscaminas( int config) {
+	public Buscaminas(int config) {
+		System.out.println("creando buscaminas");
 		valores = new ValoresDeJuego();
 		configure = new Configuracion(config);
-		tab = new Tablero();
+		tab = new Tablero(configure);
 	}
 
 	public void setValores(ValoresDeJuego valores) {
@@ -40,17 +43,32 @@ public class Buscaminas {
 	}
 
 	public Tablero getTab() {
-		return this.tab;
+		return tab;
 	}
 
 	public void Jugar() {
-		
-		
-	}
+		Scanner on = new Scanner(System.in);
+		System.out.println(tab.pintarTablero());
+		boolean salir = true;
+		while(salir){
+			System.out.println("\b");
+			System.out.println(tab.pintarTablero());
+			System.out.print("Introduzca las coordenadas a marcar (X,Y): ");
+			String cadena = on.nextLine();
+			
+			String[] strArray =  cadena.split(",");
+			int x = Integer.parseInt(strArray[0]);
+			int y = Integer.parseInt(strArray[1]);
+			
+			tab.setSeleccion(x,y);
+			
+			if(cadena.equals("F")){
+				salir = false;
+				break;
+			}
+			
+		}
 
-	public static void main(String[] args) {
-Buscaminas b=new Buscaminas();
-b.Jugar();
 	}
 
 }
